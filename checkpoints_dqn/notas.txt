@@ -1,0 +1,32 @@
+intento1:
+pesos:
+q_alpha     = 10.0;   % Prioridad máxima: péndulo en 0 rad
+q_theta     = 1.0;    % Prioridad media: brazo centrado en 0 rad
+q_alpha_dot = 0.1;    % Amortiguamiento del péndulo
+q_theta_dot = 0.05;   % Amortiguamiento del brazo
+rho         = 0.005;  % Penalización de esfuerzo de voltaje (Vm)
+reward = -100.0;	%Castigo severo por salirse
+agentOpts.EpsilonGreedyExploration.Epsilon = 1.0;      % Exploración inicial 100%
+agentOpts.EpsilonGreedyExploration.EpsilonMin = 0.02;  % Exploración mínima 2%
+agentOpts.EpsilonGreedyExploration.EpsilonDecay = 1e-4;% Decaimiento por paso
+niveles_voltaje = [-10, -5, -2, -0.5, 0, 0.5, 2, 5, 10];
+
+Logra balancear el péndulo a los 0º, pero no balancea el motor a 0º. Posiblemente le sale mejor
+no balancear en 0º, aumentar la ganancia para la recompensa en esa variable.
+Aumentar la ganancia de recompensa para voltajes, para que no oscile entre los pulsos de 5 
+Voltajes más finos.
+
+2000 episodios
+
+intento2:
+pesos:
+q_alpha     = 10.0;   % Prioridad máxima: péndulo en 0 rad
+q_theta     = 4.0;    % Prioridad media: brazo centrado en 0 rad
+q_alpha_dot = 0.1;    % Amortiguamiento del péndulo
+q_theta_dot = 0.05;   % Amortiguamiento del brazo
+rho         = 0.02;   % Penalización de esfuerzo de voltaje (Vm)
+reward = -100.0;	%Castigo severo por salirse
+agentOpts.EpsilonGreedyExploration.Epsilon = 1.0;      % Exploración inicial 100%
+agentOpts.EpsilonGreedyExploration.EpsilonMin = 0.02;  % Exploración mínima 2%
+agentOpts.EpsilonGreedyExploration.EpsilonDecay = 1e-4;% Decaimiento por paso
+niveles_voltaje = [-8, -4, -1.5, -0.3, 0, 0.3, 1.5, 4, 8];
