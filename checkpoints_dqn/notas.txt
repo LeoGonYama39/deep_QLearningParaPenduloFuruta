@@ -30,3 +30,7 @@ agentOpts.EpsilonGreedyExploration.Epsilon = 1.0;      % Exploración inicial 10
 agentOpts.EpsilonGreedyExploration.EpsilonMin = 0.02;  % Exploración mínima 2%
 agentOpts.EpsilonGreedyExploration.EpsilonDecay = 1e-4;% Decaimiento por paso
 niveles_voltaje = [-8, -4, -1.5, -0.3, 0, 0.3, 1.5, 4, 8];
+
+El motor se acerca más a los 0º, y ya no hay saltos bruscos de voltaje (+0.5v a -1.5v)
+
+1000 episodios.

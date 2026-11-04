@@ -9,7 +9,7 @@ clear; clc; close all;
 % -------------------------------------------------------------------------
 % - Pon reanudar_entrenamiento = false para iniciar desde cero.
 % - Pon reanudar_entrenamiento = true para continuar desde un archivo .mat
-reanudar_entrenamiento = false; 
+reanudar_entrenamiento = true; 
 
 % Carpeta donde se guardarán los avances automáticamente
 carpeta_checkpoints = 'checkpoints_dqn/intento2';
@@ -18,7 +18,7 @@ if ~exist(carpeta_checkpoints, 'dir')
 end
 
 % Nombre del archivo a cargar si reanudar_entrenamiento == true
-archivo_a_reanudar = fullfile(carpeta_checkpoints, 'Agente_Pausado_20261104_150153.mat');
+archivo_a_reanudar = fullfile(carpeta_checkpoints, 'Agente_Pausado_20261104_160552.mat');
 
 %% 2. Parámetros del Entorno y Simulink
 % -------------------------------------------------------------------------

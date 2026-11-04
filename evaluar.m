@@ -3,9 +3,8 @@
 % =========================================================================
 clear; clc; close all;
 
-% 1. Cargar el último agente guardado de tus 2000 episodios
-% (Pon aquí la ruta exacta de tu último archivo .mat)
-archivo = 'checkpoints_dqn/intento1/Agente_Pausado_20261104_150153.mat'; % <-- AJUSTA EL NOMBRE
+% 1. Cargar el agente
+archivo = 'checkpoints_dqn/intento2/Agente_Pausado_20261104_160552.mat'; % <-- AJUSTA EL NOMBRE
 datos = load(archivo);
 agente = datos.agente;
 
@@ -13,13 +12,13 @@ agente = datos.agente;
 modelo = 'PenduloQUBE';
 load_system(modelo);
 Ts = 0.01;
-T_final = 10.0; % Probamos el doble de tiempo (10 segundos)
+T_final = 10.0;
 
 % Condición inicial de prueba exigente: péndulo inclinado a 8 grados y brazo a 15 grados
-alpha0 = deg2rad(-13);
-theta0 = deg2rad(32);
+alpha0 = deg2rad(-5);
+theta0 = deg2rad(4);
 
-% 3. ¡CLAVE!: Apagar por completo la exploración aleatoria para evaluar
+% 3. Apagar por completo la exploración aleatoria para evaluar
 agente.UseExplorationPolicy = false; 
 
 % 4. Correr la simulación en Simulink
