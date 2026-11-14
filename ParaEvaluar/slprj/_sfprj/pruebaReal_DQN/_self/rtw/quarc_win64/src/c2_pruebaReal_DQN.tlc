@@ -1,0 +1,188 @@
+%implements "chartSource" "C"
+%function ChartConfig(block, system) void
+  %createrecord chartConfiguration { ...
+          executeAtInitialization  0 ...
+  }
+  %return chartConfiguration
+%endfunction
+%function ChartDataMap(block, system) void
+  %createrecord ChartDataElements {\
+    NumChartData   24 \
+    ChartDataDefaults {\
+      RecordType   "ChartData"\
+      Dimensions   []\
+      IsTestPoint  0\
+    }\
+    ChartData {\
+      Name         "sfEvent"\
+      Description  "ActiveChartEvent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  ""\
+    }\
+    ChartData {\
+      Name         "doneDoubleBufferReInit"\
+      Description  "DoubleBufferInitCheck"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  ""\
+    }\
+    ChartData {\
+      Name         "inicializado"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:515-527"\
+    }\
+    ChartData {\
+      Name         "inicializado_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:515-527"\
+    }\
+    ChartData {\
+      Name         "posPrev"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:528-535"\
+      Dimensions   [2]\
+    }\
+    ChartData {\
+      Name         "posPrev_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:528-535"\
+    }\
+    ChartData {\
+      Name         "velPrev"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:536-543"\
+      Dimensions   [2]\
+    }\
+    ChartData {\
+      Name         "velPrev_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:536-543"\
+    }\
+    ChartData {\
+      Name         "contador"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:544-552"\
+    }\
+    ChartData {\
+      Name         "contador_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:544-552"\
+    }\
+    ChartData {\
+      Name         "uHold"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:553-558"\
+    }\
+    ChartData {\
+      Name         "uHold_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:553-558"\
+    }\
+    ChartData {\
+      Name         "ejecutando"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:559-569"\
+    }\
+    ChartData {\
+      Name         "ejecutando_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:559-569"\
+    }\
+    ChartData {\
+      Name         "disparado"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:570-579"\
+    }\
+    ChartData {\
+      Name         "disparado_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:570-579"\
+    }\
+    ChartData {\
+      Name         "vioDesarmado"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:588-600"\
+    }\
+    ChartData {\
+      Name         "vioDesarmado_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:588-600"\
+    }\
+    ChartData {\
+      Name         "armarPrev"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:601-610"\
+    }\
+    ChartData {\
+      Name         "armarPrev_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:601-610"\
+    }\
+    ChartData {\
+      Name         "muestras"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:611-619"\
+    }\
+    ChartData {\
+      Name         "muestras_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_qube_rt.m:611-619"\
+    }\
+    ChartData {\
+      Name         "P"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_policy.m:256-257"\
+    }\
+    ChartData {\
+      Name         "P_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "C:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\dqn_policy.m:256-257"\
+    }\
+  }
+  %return ChartDataElements
+%endfunction

@@ -1,0 +1,14 @@
+Pegar SOLO este codigo dentro del bloque MATLAB Function de pruebaReal:
+
+function [Vm,s,estado,nuevaAccion] = ControlDQN(theta,alpha,armar,falloHW)
+%#codegen
+[Vm,s,estado,nuevaAccion] = dqn_qube_rt(theta,alpha,armar,falloHW);
+end
+
+Entradas: theta/alpha double escalares; armar/falloHW boolean escalares.
+Salidas: Vm double escalar, s double [4 1], estado uint8 escalar,
+nuevaAccion boolean escalar.
+
+La funcion se ejecuta a 0.001 s. La politica interna se evalua a 0.01 s.
+Para compilar: dqn_policy.m, dqn_qube_rt.m y DQN_pesos.mat deben estar
+en Current Folder/path. Los otros .m solo se ejecutan en el anfitrion.

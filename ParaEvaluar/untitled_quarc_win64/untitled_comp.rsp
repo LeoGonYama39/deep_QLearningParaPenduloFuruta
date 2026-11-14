@@ -1,0 +1,9 @@
+﻿-IC:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar
+-IC:\Users\CPB0\Desktop\deep_QLearningParaPenduloFuruta-main\deep_QLearningParaPenduloFuruta-main\ParaEvaluar\untitled_quarc_win64
+-I"C:\Program Files\MATLAB\R2025b\extern\include"
+-I"C:\Program Files\MATLAB\R2025b\simulink\include"
+-I"C:\Program Files\MATLAB\R2025b\rtw\c\src"
+-I"C:\Program Files\MATLAB\R2025b\rtw\c\src\ext_mode\common"
+-I"C:\Program Files\MATLAB\R2025b\toolbox\coder\rtiostream\src"
+-I"C:\Program Files\MATLAB\R2025b\toolbox\coder\rtiostream\src\utils"
+-I"C:\Program Files\Quanser\QUARC\include"
