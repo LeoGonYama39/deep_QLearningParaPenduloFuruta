@@ -1,0 +1,9 @@
+agente1:
+Este agente ya puede equilibrar el péndulo muy bien. Solo que se tiene que tener cuidado al balancear el péndulo y soltarlo,
+porque la fuerza del dedo puede desequilibrarlo desde el inicio. Se seguirá entrenando con velocidades iniciales para
+el péndulo y motor, y perturbaciones. (0 -  1000 episodios)
+
+agente2:
+Entrenado con velocidades iniciales en motor y péndulo, y algo de ruido en Vm. Se ve una mejora, pero se hará otro entreno
+con ruido más fuerte para aguantar empujones más grandes, y aguantar situaciones en donde el swing up haya acabado
+(velocidad de péndulo alto después de switchear a esta red).

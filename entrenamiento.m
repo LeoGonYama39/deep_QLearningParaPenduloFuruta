@@ -1,131 +1,73 @@
 % =========================================================================
-% Proyecto Final - Control Inteligente (Equipo 4)
-% Planta: Quanser QUBE-Servo 3 (Péndulo Invertido Rotatorio)
-% Algoritmo: Deep Q-Network (DQN) con GPU y Checkpoints
+% Re-entrenamiento (Fine-Tuning Robusto Sim-to-Real) con GPU Forzada
 % =========================================================================
-clear; clc; close all;
+clear; clc;
 
-%% 1. Configuración de Modo de Ejecución (Nuevo vs. Reanudar)
-% -------------------------------------------------------------------------
-% - Pon reanudar_entrenamiento = false para iniciar desde cero.
-% - Pon reanudar_entrenamiento = true para continuar desde un archivo .mat
+%% 1. Configuración de Reanudación y Archivos
 reanudar_entrenamiento = true; 
 
-% Carpeta donde se guardarán los avances automáticamente
-carpeta_checkpoints = 'checkpoints_dqn/intento2';
-if ~exist(carpeta_checkpoints, 'dir')
-    mkdir(carpeta_checkpoints);
-end
+carpeta_checkpoints = 'checkpoints_dqn/intento2'; 
+archivo_a_reanudar = fullfile(carpeta_checkpoints, 'agente2.mat'); % <-- PON TU ARCHIVO AQUÍ
 
-% Nombre del archivo a cargar si reanudar_entrenamiento == true
-archivo_a_reanudar = fullfile(carpeta_checkpoints, 'Agente_Pausado_20261104_160552.mat');
-
-%% 2. Parámetros del Entorno y Simulink
-% -------------------------------------------------------------------------
-modelo = 'PenduloQUBE'; % Nombre exacto de tu archivo .slx
+%% 2. Variables Iniciales del Entorno en el Workspace
+modelo = 'PenduloQUBE';
 load_system(modelo);
 
-Ts = 0.01;              % Período de muestreo: 10 ms (100 Hz)
-T_final = 5.0;          % Duración máxima del episodio: 5 s (500 pasos)
+Ts = 0.01;
+T_final = 5.0;
 
-% Condiciones iniciales base en el Workspace (requeridas por los integradores)
+% Condiciones iniciales base (se sobreescriben en cada episodio por localResetFcn)
 theta0 = 0;
-alpha0 = deg2rad(2);    % Inicia ligeramente inclinado (2 grados)
+alpha0 = deg2rad(2);
+theta_dot0 = 0; 
+alpha_dot0 = 0; 
 
-% 2.1 Espacio de Observaciones: s_k = [theta; alpha; theta_dot; alpha_dot]
+% Especificación de Observaciones (4x1) y Acciones (9 niveles)
 num_obs = 4;
 obsInfo = rlNumericSpec([num_obs 1], ...
     'LowerLimit', [-deg2rad(90); -deg2rad(15); -inf; -inf], ...
     'UpperLimit', [ deg2rad(90);  deg2rad(15);  inf;  inf]);
-obsInfo.Name = 'estados_péndulo';
-obsInfo.Description = 'theta, alpha, theta_dot, alpha_dot';
 
-% 2.2 Espacio de Acciones Discreto (Voltaje Vm en Volts)
-% Más denso cerca de 0 V para evitar chattering (tirones) cuando ya está en equilibrio
 niveles_voltaje = [-8, -4, -1.5, -0.3, 0, 0.3, 1.5, 4, 8];
-num_acciones = numel(niveles_voltaje);
-
 actInfo = rlFiniteSetSpec(niveles_voltaje);
-actInfo.Name = 'voltaje_motor';
 
-% Creación del entorno vinculando el bloque RL Agent
 bloque_agente = [modelo '/RL Agent'];
 env = rlSimulinkEnv(modelo, bloque_agente, obsInfo, actInfo);
-
-% Función de reinicio aleatorio al inicio de cada episodio (Algoritmo 1, línea 3)
 env.ResetFcn = @(in) localResetFcn(in, modelo);
 
-%% 3. Creación o Recuperación del Agente DQN
-% -------------------------------------------------------------------------
+%% 3. Cargar el Agente 2, Forzar GPU y Ajustar Fine-Tuning
 if reanudar_entrenamiento
-    if isfile(archivo_a_reanudar)
-        fprintf('--> Cargando agente previo desde: %s\n', archivo_a_reanudar);
-        datos = load(archivo_a_reanudar);
-        if isfield(datos, 'saved_agent')
-            agente = datos.saved_agent;
-        elseif isfield(datos, 'savedAgent')
-            agente = datos.savedAgent;
-        elseif isfield(datos, 'agente')
-            agente = datos.agente;
-        else
-            error('El archivo .mat no contiene un objeto de agente reconocido.');
-        end
-        fprintf('--> Agente cargado con éxito. Listo para continuar.\n');
-        if isfield(datos, 'eps_final')
-            agente.AgentOptions.EpsilonGreedyExploration.Epsilon = datos.eps_final;
-            fprintf('--> Epsilon restaurado exactamente en: %.4f\n', datos.eps_final);
-        end
-    else
-        error('No se encontró el archivo %s. Verifica el nombre en la carpeta.', archivo_a_reanudar);
+    if ~isfile(archivo_a_reanudar)
+        error('No se encontró el archivo: %s', archivo_a_reanudar);
     end
-else
-    fprintf('--> Creando nueva red neuronal Q(s,a;phi) y agente DQN desde cero...\n');
     
-    % Arquitectura de la Red Q (4 entradas -> 128 -> 128 -> 9 salidas Q)
-    redQ = [
-        featureInputLayer(num_obs, 'Normalization', 'none', 'Name', 'state')
-        fullyConnectedLayer(128, 'Name', 'fc1')
-        reluLayer('Name', 'relu1')
-        fullyConnectedLayer(128, 'Name', 'fc2')
-        reluLayer('Name', 'relu2')
-        fullyConnectedLayer(num_acciones, 'Name', 'Q_values')
-    ];
+    fprintf('--> Cargando Agente desde: %s\n', archivo_a_reanudar);
+    datos = load(archivo_a_reanudar);
     
-    redQ_dl = dlnetwork(redQ);
+    if isfield(datos, 'agente')
+        agente = datos.agente;
+    elseif isfield(datos, 'saved_agent')
+        agente = datos.saved_agent;
+    end
+
+    critic = getCritic(agente);
+    critic.UseDevice = 'gpu';
+    agente = setCritic(agente, critic);
     
-    % Opciones del optimizador del Crítico (Adam + GPU)
-    criticOpts = rlOptimizerOptions( ...
-        'LearnRate', 1e-3, ...          % Tasa de aprendizaje (eta)
-        'GradientThreshold', 1.0);      % Evita explosión de gradientes
+    % Ajustar hiperparámetros para Fine-Tuning bajo perturbaciones fuertes
+    agente.UseExplorationPolicy = true; 
+    agente.AgentOptions.EpsilonGreedyExploration.Epsilon = 0.08; 
+    agente.AgentOptions.EpsilonGreedyExploration.EpsilonMin = 0.01;
+    agente.AgentOptions.EpsilonGreedyExploration.EpsilonDecay = 1e-5;
+
+    % Tasa de aprendizaje suave para afinar pesos sin olvido catastrófico
+    agente.AgentOptions.CriticOptimizerOptions.LearnRate = 2e-4;
     
-    % Función de valor Q vectorial en la GPU
-    critic = rlVectorQValueFunction(redQ_dl, obsInfo, actInfo, ...
-        'ObservationInputNames', 'state', ...
-        'UseDevice', 'gpu');            % <--- ACELERACIÓN POR GPU ACTIVADA
-    
-    % Hiperparámetros del Agente DQN (Algoritmo 1 del documento)
-    agentOpts = rlDQNAgentOptions( ...
-        'SampleTime', Ts, ...
-        'DiscountFactor', 0.99, ...             % Factor de descuento (gamma)
-        'ExperienceBufferLength', 1e5, ...      % Capacidad de memoria D (N)
-        'MiniBatchSize', 128, ...               % Tamaño de lote (B)
-        'TargetUpdateFrequency', 200, ...       % Período actualización red objetivo (C)
-        'TargetSmoothFactor', 1.0, ...          % 1.0 = Copia dura cada C pasos (como en el PDF)
-        'UseDoubleDQN', true, ...               % Mejora estabilidad evitando sobreestimar Q
-        'CriticOptimizerOptions', criticOpts);
-    
-    % Programa de exploración Epsilon-Greedy (Algoritmo 1, línea 5 y 12)
-    agentOpts.EpsilonGreedyExploration.Epsilon = 1.0;      % Exploración inicial 100%
-    agentOpts.EpsilonGreedyExploration.EpsilonMin = 0.02;  % Exploración mínima 2%
-    agentOpts.EpsilonGreedyExploration.EpsilonDecay = 1e-4;% Decaimiento por paso
-    
-    % Instanciar el Agente DQN
-    agente = rlDQNAgent(critic, agentOpts);
+    fprintf('--> Dispositivo del Crítico confirmado en: %s\n', upper(critic.UseDevice));
 end
 
-%% 4. Configuración del Entrenamiento y Guardado Automático
-% -------------------------------------------------------------------------
-max_pasos = floor(T_final / Ts); % 500 pasos por episodio
+%% 4. Opciones de Entrenamiento y Ejecución
+max_pasos = floor(T_final / Ts);
 
 trainOpts = rlTrainingOptions( ...
     'MaxEpisodes', 1000, ...
@@ -134,49 +76,53 @@ trainOpts = rlTrainingOptions( ...
     'Plots', 'training-progress', ...
     'Verbose', true, ...
     'StopTrainingCriteria', 'AverageReward', ...
-    'StopTrainingValue', 475, ...
-    'SaveAgentCriteria', 'none');
+    'StopTrainingValue', 485, ...
+    'SaveAgentCriteria', 'EpisodeReward', ...
+    'SaveAgentValue', 440, ...
+    'SaveAgentDirectory', fullfile(carpeta_checkpoints, 'mejores_agentes3'));
 
-%% 5. Ejecución del Entrenamiento y Respaldo Final
-% -------------------------------------------------------------------------
-entrenar = true; % Cambia a false cuando solo quieras simular el agente ya entrenado
-
-if entrenar
-    fprintf('--> Iniciando entrenamiento en GPU...\n');
-    fprintf('    (Si presionas "Stop" en la gráfica, el agente se guardará automáticamente al salir)\n\n');
-    
+fprintf('--> Iniciando Fine-Tuning en GPU...\n');
+try
     trainingStats = train(agente, env, trainOpts);
-    
-    % 1. Calcular el total acumulado de pasos de esta sesión
-    pasos_totales_sesion = sum(trainingStats.EpisodeSteps);
-    
-    % 2. Leer o actualizar el epsilon exacto actual
-    eps_actual = agente.AgentOptions.EpsilonGreedyExploration.Epsilon;
-    decay_rate = agente.AgentOptions.EpsilonGreedyExploration.EpsilonDecay;
-    eps_min    = agente.AgentOptions.EpsilonGreedyExploration.EpsilonMin;
-    eps_final  = max(eps_min, eps_actual * ((1 - decay_rate)^pasos_totales_sesion));
-    
-    % 3. Guardar todo en el .mat
-    fecha_str = char(datetime('now', 'Format', 'yyyyMMdd_HHmmss'));
-    nombre_respaldo = fullfile(carpeta_checkpoints, ['Agente_Pausado_' fecha_str '.mat']);
-    save(nombre_respaldo, 'agente', 'trainingStats', 'eps_final');
-    
-    fprintf('\n--> Agente guardado en: %s\n', nombre_respaldo);
-    fprintf('    Episodios corridos en sesion: %d\n', numel(trainingStats.EpisodeReward));
-    fprintf('    Epsilon exacto para reanudar: %.4f\n', eps_final);
+catch ME
+    fprintf('\n[!] Entrenamiento interrumpido: %s\n', ME.message);
 end
 
+% Guardar siempre el respaldo al terminar o pausar
+fecha_str = char(datetime('now', 'Format', 'yyyyMMdd_HHmmss'));
+nombre_respaldo = fullfile(carpeta_checkpoints, ['agente_nuevo' fecha_str '.mat']);
+save(nombre_respaldo, 'agente');
+fprintf('\n--> ¡Agente guardado con éxito en: %s!\n', nombre_respaldo);
+
 % =========================================================================
-% Función Local: Condiciones Iniciales Aleatorias por Episodio
+% Función Local de Reinicio: Ángulos + Velocidades Iniciales Aleatorias
 % =========================================================================
 function in = localResetFcn(in, modelo)
-    % Algoritmo 1, Línea 3: Inicializar s_0 con condiciones aleatorias
-    % Alpha inicial entre -5° y +5° (evita que nazca exactamente en 0° y no aprenda a corregir)
-    alpha_init = deg2rad((rand() - 0.5) * 10); 
+    % 1. Ángulo inicial del péndulo entre -10° y +10°
+    alpha_init = deg2rad((rand() - 0.5) * 20); 
     
-    % Theta inicial entre -15° y +15°
-    theta_init = deg2rad((rand() - 0.5) * 30);
+    % 2. Ángulo inicial del brazo entre -30° y +30°
+    theta_init = deg2rad((rand() - 0.5) * 60);
     
+    % 3. Velocidad inicial del péndulo (Simulación inteligente de Swing-Up + Empujones)
+    if rand() < 0.5
+        % CASO A (50% de episodios): Escenario de "Cachar el Swing-Up"
+        % El péndulo entra por un extremo (-10° o +10°) moviéndose HACIA el centro (0°)
+        % Velocidad alta: hasta 130°/s (2.26 rad/s) en dirección opuesta al signo de alpha_init
+        mag_vel = deg2rad(30 + rand() * 100); % Entre 30°/s y 130°/s
+        alpha_dot_init = -sign(alpha_init) * mag_vel;
+    else
+        % CASO B (50% de episodios): Empujón aleatorio en cualquier dirección
+        % Si va hacia afuera, limitamos a ±60°/s para que sea físicamente salvable con 8V
+        alpha_dot_init = deg2rad((rand() - 0.5) * 120); % Entre -60°/s y +60°/s
+    end
+    
+    % 4. Velocidad inicial del brazo del motor: ampliada a ±150°/s (±2.6 rad/s)
+    theta_dot_init = deg2rad((rand() - 0.5) * 300);
+    
+    % Enviar variables al Workspace del modelo
     in = setVariable(in, 'alpha0', alpha_init, 'Workspace', modelo);
     in = setVariable(in, 'theta0', theta_init, 'Workspace', modelo);
+    in = setVariable(in, 'alpha_dot0', alpha_dot_init, 'Workspace', modelo);
+    in = setVariable(in, 'theta_dot0', theta_dot_init, 'Workspace', modelo);
 end
